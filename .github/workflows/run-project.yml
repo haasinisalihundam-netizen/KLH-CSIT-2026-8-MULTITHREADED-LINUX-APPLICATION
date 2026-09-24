@@ -1,0 +1,29 @@
+name: Run OSSP Project
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Select execution mode"
+        required: true
+        default: "3"
+        type: choice
+        options:
+          - "1"
+          - "2"
+          - "3"
+
+jobs:
+  run-project:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Compile project
+        run: make
+
+      - name: Run through custom shell
+        run: |
+          printf "pwd\nls\nproject\n${{ inputs.mode }}\n" | ./my_shell
