@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,8 +9,66 @@
 #define MAX_INPUT 1024
 #define MAX_ARGS 64
 
-int main()
+void launch_new_terminal()
 {
+    char cwd[PATH_MAX];
+
+    const char *distro = getenv("WSL_DISTRO_NAME");
+
+    if (distro == NULL)
+    {
+        return;
+    }
+
+    if (getcwd(cwd, sizeof(cwd)) == NULL)
+    {
+        perror("getcwd");
+        exit(1);
+    }
+
+    char command[4096];
+
+    snprintf(
+        command,
+        sizeof(command),
+        "cmd.exe /c \"wt.exe\" -w -1 "
+        "wsl.exe -d %s --cd %s "
+        "--exec ./my_shell --child",
+        distro,
+        cwd
+    );
+
+    int result = system(command);
+
+    if (result != 0)
+    {
+        printf("Unable to open new terminal window.\n");
+    }
+}
+void print_prompt()
+{
+    printf("\033[1;32mmy_shell\033[0m$ ");
+    fflush(stdout);
+}
+
+int main(int argc, char *argv[])
+
+{
+    /*
+     * When started normally from Ubuntu,
+     * open the custom shell in a NEW terminal.
+     *
+     * --child means we are already inside
+     * that new terminal, so don't open another one.
+     */
+    if (getenv("WSL_DISTRO_NAME") != NULL)
+    {
+        if (!(argc > 1 && strcmp(argv[1], "--child") == 0))
+        {
+            launch_new_terminal();
+            return 0;
+        }
+    }
 setvbuf(stdin, NULL, _IONBF, 0);
     char input[MAX_INPUT];
     char *args[MAX_ARGS];
@@ -22,8 +81,7 @@ setvbuf(stdin, NULL, _IONBF, 0);
 
     while (1)
     {
-        printf("my_shell> ");
-        fflush(stdout);
+        print_prompt();
 
         /* Read command from user */
         if (fgets(input, sizeof(input), stdin) == NULL)
@@ -35,7 +93,6 @@ setvbuf(stdin, NULL, _IONBF, 0);
         int i = 0;
 
         args[i] = strtok(input, " \t\n");
-
         while (args[i] != NULL && i < MAX_ARGS - 1)
         {
             i++;
