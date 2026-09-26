@@ -1,29 +1,50 @@
-name: Run OSSP Project
+name: OSSP Project Demo
+
+run-name: "Demo - ${{ inputs.mode }}"
 
 on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "Select execution mode"
+        description: "Choose how the mutex project should run"
         required: true
-        default: "3"
+        default: "3 - Run BOTH and Compare"
         type: choice
         options:
-          - "1"
-          - "2"
-          - "3"
+          - "1 - Run WITHOUT Mutex"
+          - "2 - Run WITH Mutex"
+          - "3 - Run BOTH and Compare"
 
 jobs:
   run-project:
+    name: Custom Shell + Multithreaded Project
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout project files
         uses: actions/checkout@v4
 
-      - name: Compile project
+      - name: Compile custom shell and mutex project
         run: make
 
-      - name: Run through custom shell
+      - name: Run project through custom shell
+        shell: bash
         run: |
-          printf "pwd\nls\nproject\n${{ inputs.mode }}\n" | ./my_shell
+          case "${{ inputs.mode }}" in
+            "1 - Run WITHOUT Mutex")
+              CHOICE=1
+              ;;
+            "2 - Run WITH Mutex")
+              CHOICE=2
+              ;;
+            "3 - Run BOTH and Compare")
+              CHOICE=3
+              ;;
+          esac
+
+          echo "========================================"
+          echo " Selected mode: ${{ inputs.mode }}"
+          echo "========================================"
+          echo
+
+          printf "help\npwd\nls\nproject\n${CHOICE}\n" | ./my_shell

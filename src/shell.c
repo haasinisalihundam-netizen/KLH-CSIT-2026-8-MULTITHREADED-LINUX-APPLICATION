@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
             launch_new_terminal();
             return 0;
         }
-    }
+   }
 setvbuf(stdin, NULL, _IONBF, 0);
     char input[MAX_INPUT];
     char *args[MAX_ARGS];
@@ -89,6 +89,18 @@ setvbuf(stdin, NULL, _IONBF, 0);
             break;
         }
 
+/*
+ * When input comes from GitHub Actions,
+ * display the command being executed.
+ *
+ * In a normal terminal the user can already
+ * see what they typed, so we do not print it again.
+ */
+if (!isatty(STDIN_FILENO))
+{
+    printf("%s", input);
+    fflush(stdout);
+}
         /* Split command into words */
         int i = 0;
 
