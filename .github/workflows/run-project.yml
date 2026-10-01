@@ -47,4 +47,4 @@ jobs:
           echo "========================================"
           echo
 
-          printf "project\n${CHOICE}\n" | ./my_shell
+          printf "help\npwd\nls\ndate\nwhoami\necho Hello from OSSP Custom Shell\ncd src\npwd\nls\ncd ..\npwd\nproject\n${CHOICE}\nexit\n" | ./my_shell
