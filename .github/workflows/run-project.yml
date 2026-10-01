@@ -47,4 +47,4 @@ jobs:
           echo "========================================"
           echo
 
-          printf "help\npwd\nls\nproject\n${CHOICE}\n" | ./my_shell
+          printf "project\n${CHOICE}\n" | ./my_shell
